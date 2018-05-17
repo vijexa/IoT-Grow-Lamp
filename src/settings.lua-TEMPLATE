@@ -22,6 +22,8 @@ settings = {
     fade = true,
     -- lamp will fully turn on after that time; start turning off before that time; time in minutes
     fade_time = 10,
+    -- fade function; 1 - linear; 2 - parabola; 3 - exponent
+    fade_function = 2,
 
     -- use sunset and sunrise time
     sun_phases = false

@@ -32,7 +32,7 @@ sntp.sync(settings.time_server,
     end
 
     -- night time
-    if (current_time>=settings.toggle_time.off) or (current_time<=settings.toggle_time.on) then 
+    if (current_time>=settings.toggle_time.off) or (current_time<settings.toggle_time.on) then 
       local time_left = settings.toggle_time.on-current_time
       -- if time left for sleep is less than specified sleep time then module need to sleep less
       if(time_left<=DIV(settings.sleep_time, MINUTE_NS)) and (time_left>=0) then  
@@ -43,20 +43,34 @@ sntp.sync(settings.time_server,
         rtctime.dsleep(settings.sleep_time)
       end
     else 
+      fade_functions = {
+        -- linear
+        function(x)
+          return x
+        end,
+        -- parabola
+        function(x) 
+          return math.floor((1/1024)*(x^2)+1 + 0.5)
+        end,
+        -- exponent
+        function(x)
+          return math.floor(2^(x*0.0097738) + 0.5)
+        end
+      }
       -- day time
       local function maintain_lamp()
         print("lamp on") 
         if(settings.fade) and (current_time-settings.toggle_time.on<=settings.fade_time) then
           local time_to_end = settings.toggle_time.on + settings.fade_time - current_time
-          local number_of_steps = map(time_to_end, 0, settings.fade_time, 1023, 0)
+          local number_of_steps = math.floor(map(time_to_end, 0, settings.fade_time, 1023, 0))
           local step_time = DIV(time_to_end*MINUTE_MS, 1023-number_of_steps)
           local duty = number_of_steps
           pwm.setup(lamp_pin, pwm_freq, duty)
           pwm.start(lamp_pin)
           tmr.create():alarm(step_time, tmr.ALARM_AUTO, function(timer)
             duty = duty + 1
-            print(duty)
-            pwm.setduty(2, duty)
+            print(fade_functions[settings.fade_function](duty).." - "..duty)
+            pwm.setduty(lamp_pin, fade_functions[settings.fade_function](duty))
             if(duty >= 1023) then
               pwm.stop(lamp_pin)
               pwm.close(lamp_pin)
@@ -74,8 +88,8 @@ sntp.sync(settings.time_server,
           pwm.start(lamp_pin)
           tmr.create():alarm(step_time, tmr.ALARM_AUTO, function(timer)
             duty = duty - 1
-            print(duty)
-            pwm.setduty(2, duty)
+            print(fade_functions[settings.fade_function](duty).." - "..duty)
+            pwm.setduty(lamp_pin, fade_functions[settings.fade_function](duty))
             if(duty <= 0) then
               pwm.stop(lamp_pin)
               pwm.close(lamp_pin)
