@@ -1,0 +1,29 @@
+sta_cred = {
+    ssid = "foo",
+    pwd = "bar"
+}
+settings = {
+    time_server = "time.google.com",
+    sleep_time = 30*60*1000000, --ns
+    GMT = 2,
+    summer_time = true,
+    -- set on/off time if you don't want to use sunset/sunrise time
+    toggle_time = {
+        on = {
+            hour = 9,
+            min = 10
+        },
+        off = {
+            hour = 9,
+            min = 30
+        }
+    },
+    -- smoothly turn on and off lamp using PWM
+    fade = true,
+    -- lamp will fully turn on after that time; start turning off before that time; time in minutes
+    fade_time = 10,
+
+    -- use sunset and sunrise time
+    sun_phases = false
+    -- coords
+}
