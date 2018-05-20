@@ -19,7 +19,7 @@ settings = {
             month_day = 29
         }
     }
-    -- set on/off time if you don't want to use sunset/sunrise time
+    -- set on/off time if daylight_saving = false
     toggle_time = {
         on = {
             hour = 9,
@@ -37,7 +37,11 @@ settings = {
     -- fade function; 1 - linear; 2 - parabola; 3 - exponent
     fade_function = 3,
 
-    -- use sunset and sunrise time
-    sun_phases = false
-    -- coords
+    -- use twilight begin and end times
+    use_twilight = false
+    -- coordinates for twilight time acquiring (in google maps coords first number is latitude, second longitude)
+    coordinates = {
+        latitude = 56.949376,
+        longitude = 24.105186
+    }
 }
