@@ -6,15 +6,44 @@ lamp_pin = 2
 pwm_freq = 1000
 settings.toggle_time.on = settings.toggle_time.on.hour*60 + settings.toggle_time.on.min
 settings.toggle_time.off = settings.toggle_time.off.hour*60 + settings.toggle_time.off.min
-
 current_time = {}
+
+-- checking if it is daylight saving time now
+function check_daylight_saving()
+  local months = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+
+  local days_start = 0
+  for i=1, 1, settings.daylight_saving_period.start.month-1 do
+    days_start = days_start + months[i]
+    if(i == 2) and (current_time.year % 4 == 0) then days_start = days_start + 1 end
+  end
+  days_start = days_start + settings.daylight_saving_period.start.day
+
+  local days_end = 0
+  for i=1, 1, settings.daylight_saving_period._end.month-1 do
+    days_end = days_end + months[i]
+    if(i == 2) and (current_time.year % 4 == 0) then days_end = days_end + 1 end
+  end
+  days_end = days_end + settings.daylight_saving_period.end.day
+
+  return (current_time.yday>days_start) and (current_time.yday<days_end)
+end
+
 function format_time() 
   current_time = rtctime.epoch2cal(rtctime.get())
   current_time.hour = current_time.hour + settings.GMT
-  if settings.summer_time == true then current_time.hour = current_time.hour + 1 end
+  if (settings.summer_time == true) and (check_daylight_saving()) then current_time.hour = current_time.hour + 1 end
   if current_time.hour >= 24 then current_time.hour = current_time.hour - 24 end
   print(current_time.hour..":"..current_time.min)
   current_time = current_time.hour*60 + current_time.min
+end
+
+function DIV(a,b)
+  return (a - a % b) / b
+end
+
+function map(x, in_min, in_max, out_min, out_max)
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 end
 
 -- sync time
@@ -22,14 +51,6 @@ sntp.sync(settings.time_server,
 
   function(sec, usec, server, info)
     format_time()
-
-    local function DIV(a,b)
-      return (a - a % b) / b
-    end
-
-    local function map(x, in_min, in_max, out_min, out_max)
-      return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-    end
 
     -- night time
     if (current_time>=settings.toggle_time.off) or (current_time<settings.toggle_time.on) then 
