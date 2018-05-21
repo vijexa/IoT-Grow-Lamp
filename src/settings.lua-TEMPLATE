@@ -13,12 +13,12 @@ settings = {
         start = {
             month = 3, 
             month_day = 25
-        }
+        },
         _end = {
             month = 10, 
             month_day = 29
         }
-    }
+    },
     -- set on/off time if daylight_saving = false
     toggle_time = {
         on = {
@@ -38,7 +38,7 @@ settings = {
     fade_function = 3,
 
     -- use twilight begin and end times
-    use_twilight = false
+    use_twilight = false,
     -- coordinates for twilight time acquiring (in google maps coords first number is latitude, second longitude)
     coordinates = {
         latitude = 56.949376,

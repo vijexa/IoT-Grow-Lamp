@@ -13,29 +13,31 @@ function check_daylight_saving()
   local months = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
   local days_start = 0
-  for i=1, 1, settings.daylight_saving_period.start.month-1 do
+  for i=1, settings.daylight_saving_period.start.month-1, 1 do
     days_start = days_start + months[i]
     if(i == 2) and (current_time.year % 4 == 0) then days_start = days_start + 1 end
   end
-  days_start = days_start + settings.daylight_saving_period.start.day
+  days_start = days_start + settings.daylight_saving_period.start.month_day
 
   local days_end = 0
-  for i=1, 1, settings.daylight_saving_period._end.month-1 do
+  for i=1, settings.daylight_saving_period._end.month-1, 1 do
     days_end = days_end + months[i]
     if(i == 2) and (current_time.year % 4 == 0) then days_end = days_end + 1 end
   end
-  days_end = days_end + settings.daylight_saving_period.end.day
+  days_end = days_end + settings.daylight_saving_period._end.month_day
 
+  print("saving start "..days_start.." end "..days_end)
+  print((current_time.yday>days_start) and (current_time.yday<days_end))
   return (current_time.yday>days_start) and (current_time.yday<days_end)
 end
 
 function format_time() 
   current_time = rtctime.epoch2cal(rtctime.get())
   current_time.hour = current_time.hour + settings.GMT
-  if (settings.summer_time == true) and (check_daylight_saving()) then current_time.hour = current_time.hour + 1 end
+  if (settings.daylight_saving == true) and (check_daylight_saving()) then current_time.hour = current_time.hour + 1 end
   if current_time.hour >= 24 then current_time.hour = current_time.hour - 24 end
   print(current_time.hour..":"..current_time.min)
-  current_time = current_time.hour*60 + current_time.min
+  current_time.time = current_time.hour*60 + current_time.min
 end
 
 function DIV(a,b)
@@ -54,8 +56,8 @@ sntp.sync(settings.time_server,
 
     function routine()
       -- night time
-      if (current_time>=settings.toggle_time.off) or (current_time<settings.toggle_time.on) then 
-        local time_left = settings.toggle_time.on-current_time
+      if (current_time.time>=settings.toggle_time.off) or (current_time.time<settings.toggle_time.on) then 
+        local time_left = settings.toggle_time.on-current_time.time
         -- if time left for sleep is less than specified sleep time then module need to sleep less
         if(time_left<=DIV(settings.sleep_time, MINUTE_NS)) and (time_left>=0) then  
           print("sleep     time left "..time_left)
@@ -82,8 +84,8 @@ sntp.sync(settings.time_server,
         -- day time
         local function maintain_lamp()
           print("lamp on") 
-          if(settings.fade) and (current_time-settings.toggle_time.on<=settings.fade_time) then
-            local time_to_end = settings.toggle_time.on + settings.fade_time - current_time
+          if(settings.fade) and (current_time.time-settings.toggle_time.on<=settings.fade_time) then
+            local time_to_end = settings.toggle_time.on + settings.fade_time - current_time.time
             local number_of_steps = math.floor(map(time_to_end, 0, settings.fade_time, 1023, 0))
             local step_time = DIV(time_to_end*MINUTE_MS, 1023-number_of_steps)
             local duty = number_of_steps
@@ -101,8 +103,8 @@ sntp.sync(settings.time_server,
                 timer:unregister()
               end
             end)
-          elseif (settings.fade) and (settings.toggle_time.off-current_time<=settings.fade_time) then
-            local time_to_end = settings.toggle_time.off - current_time
+          elseif (settings.fade) and (settings.toggle_time.off-current_time.time<=settings.fade_time) then
+            local time_to_end = settings.toggle_time.off - current_time.time
             local number_of_steps = map(time_to_end, 0, settings.fade_time, 0, 1023)
             local step_time = DIV(time_to_end*MINUTE_MS, number_of_steps)
             local duty = number_of_steps
@@ -133,9 +135,9 @@ sntp.sync(settings.time_server,
             format_time()
             local time_left
             if(settings.fade) then
-              time_left = settings.toggle_time.off-settings.fade_time-current_time
+              time_left = settings.toggle_time.off-settings.fade_time-current_time.time
             else 
-              time_left = settings.toggle_time.off-current_time
+              time_left = settings.toggle_time.off-current_time.time
             end
             -- if time left for waiting is less than specified sleep time then module need to wait less
             if(time_left<=DIV(settings.sleep_time, MINUTE_NS)) and (time_left>=0) then
@@ -155,6 +157,7 @@ sntp.sync(settings.time_server,
     end
 
     if(settings.use_twilight) then
+      print(current_time.time)
       local FNAME = "twilight_times.json"
       file.open(FNAME, "r")
       local twilight_times = file.read()
@@ -163,10 +166,18 @@ sntp.sync(settings.time_server,
       if(current_time.yday == twilight_times.day) then
         settings.toggle_time.on = twilight_times.twilight_begin
         settings.toggle_time.off = twilight_times.twilight_end
+        print("on "..settings.toggle_time.on)
+        print("off "..settings.toggle_time.off)
         routine()
       else 
-        http.get("https://api.sunrise-sunset.org/json?lat="..settings.coordinates.latitude.."&lng="..settings.coordinates.longitude, nil, function(code, raw_data)
-          local raw_data = sjson.decode(raw_data)
+        local url = "http://api.sunrise-sunset.org/json?lat="
+        url = url..tostring(settings.coordinates.latitude)
+        url = url.."&lng="
+        url = url..tostring(settings.coordinates.longitude)
+        print(url)
+        http.get(url, nil, function(code, raw_data)
+          print(raw_data)
+          raw_data = sjson.decode(raw_data)
           local data = {}
           local function convert(raw_time)
             local val = tonumber(string.match(raw_time, "(.-):")) + settings.GMT + (check_daylight_saving() and 1 or 0)
@@ -181,6 +192,8 @@ sntp.sync(settings.time_server,
           file.close()
           settings.toggle_time.on = data.twilight_begin
           settings.toggle_time.off = data.twilight_end
+          print("on "..settings.toggle_time.on)
+          print("off "..settings.toggle_time.off)
           routine()
         end)
       end
