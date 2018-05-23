@@ -30,16 +30,19 @@ settings = {
             min = 30
         }
     },
-    -- smoothly turn on and off lamp using PWM
+-- smoothly turn on and off lamp using PWM
     fade = true,
-    -- lamp will fully turn on after that time; start turning off before that time; time in minutes
-    fade_time = 10,
+    -- lamp will fully turn on after that time; start turning off before that time (but lamp will be turned off exactly in toggle_time.off)
+    -- time in minutes
+    -- if you are using sunset/rise times then it's better to set fade_time to 30 (average civil twilight time)
+    -- if you are using sunset/rise times then lamp will start turning off at sunset time and will be turned off in sunset_time+fade_time
+    fade_time = 30,
     -- fade function; 1 - linear; 2 - parabola; 3 - exponent
     fade_function = 3,
 
-    -- use twilight begin and end times
-    use_twilight = false,
-    -- coordinates for twilight time acquiring (in google maps coords first number is latitude, second longitude)
+    -- use sunset/rise times
+    use_sun_times = true,
+    -- coordinates for sunset/rise time acquiring (in google maps coords first number is latitude, second longitude)
     coordinates = {
         latitude = 56.949376,
         longitude = 24.105186

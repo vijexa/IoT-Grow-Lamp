@@ -160,16 +160,16 @@ sntp.sync(settings.time_server,
       end
     end
 
-    if(settings.use_twilight) then
+    if(settings.use_sun_times) then
       print(current_time.time)
-      local FNAME = "twilight_times.json"
+      local FNAME = "sun_times.json"
       file.open(FNAME, "r")
-      local twilight_times = file.read()
+      local sun_times = file.read()
       file.close()
-      twilight_times = sjson.decode(twilight_times)
-      if(current_time.yday == twilight_times.day) then
-        settings.toggle_time.on = twilight_times.twilight_begin
-        settings.toggle_time.off = twilight_times.twilight_end
+      sun_times = sjson.decode(sun_times)
+      if(current_time.yday == sun_times.day) then
+        settings.toggle_time.on = sun_times.sunrise
+        settings.toggle_time.off = sun_times.sunset
         print("on "..settings.toggle_time.on)
         print("off "..settings.toggle_time.off)
         routine()
@@ -188,14 +188,16 @@ sntp.sync(settings.time_server,
             val = (val + (string.match(raw_time, " (.+)") == "PM" and 12 or 0))*60
             return val + tonumber(string.match(raw_time, "(.-):"))
           end
-          data.twilight_begin = convert(raw_data.results.civil_twilight_begin)
-          data.twilight_end = convert(raw_data.results.civil_twilight_end)
+          data.sunrise = convert(raw_data.results.sunrise)
+          data.sunset = convert(raw_data.results.sunset)
+          data.day = current_time.yday
           raw_data = sjson.encode(data)
           file.open(FNAME, "w")
           file.write(raw_data)
           file.close()
-          settings.toggle_time.on = data.twilight_begin
-          settings.toggle_time.off = data.twilight_end
+          settings.toggle_time.on = data.sunrise
+          -- adding settings.fade_time to ensure that lamp will start to turning off on sunset time 
+          settings.toggle_time.off = data.sunset + (settings.fade and settings.fade_time or 0) 
           print("on "..settings.toggle_time.on)
           print("off "..settings.toggle_time.off)
           routine()
