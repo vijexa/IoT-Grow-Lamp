@@ -22,11 +22,11 @@ settings = {
     -- set on/off time if daylight_saving = false
     toggle_time = {
         on = {
-            hour = 9,
-            min = 10
+            hour = 10,
+            min = 00
         },
         off = {
-            hour = 9,
+            hour = 23,
             min = 30
         }
     },
@@ -41,7 +41,7 @@ settings = {
     fade_function = 3,
 
     -- use sunset/rise times
-    use_sun_times = true,
+    use_sun_times = false,
     -- coordinates for sunset/rise time acquiring (in google maps coords first number is latitude, second longitude)
     coordinates = {
         latitude = 56.949376,
