@@ -31,7 +31,7 @@ I advice to use NodeMCU PyFlasher because it's more user-friendly and platform-i
 
 **!IMPORTANT BEFORE FLASHING!**
 
-It's very easy to get confused if you use ESP8266 for first time. You need to know some things about its bootloader. When you reset module, GPIO15 ALWAYS should be connected to ground, and GPIO2 to VCC. If you connect GPIO0 to VCC, MCU will boot in normal mode and execute your program in its flash memory. If you set it to GND, MCU will wait for firmware flashing. You need to set GPIO0 to GND ONLY when you flash firmware. When you upload program, it should be HIGH. You need to use resistors for all connections.
+It's very easy to get confused if you use ESP8266 for the first time. You need to know some things about its bootloader. When you reset module, GPIO15 ALWAYS should be connected to ground, and GPIO2 to VCC. If you connect GPIO0 to VCC, MCU will boot in normal mode and execute your program in its flash memory. If you set it to GND, MCU will wait for firmware flashing. You need to set GPIO0 to GND ONLY when you flash firmware. When you upload program, it should be HIGH. You need to use resistors for all connections.
 
 GPIO | Normal mode | Flashing mode
 ---- | ------------|--------------
@@ -44,6 +44,6 @@ You can read more about ESP8266 boot process here:
 https://github.com/esp8266/esp8266-wiki/wiki/Boot-Process#esp-boot-modes
 ```
 
-It's important every time when you reset MCU. After resetting these pins can be used as regular GPIO. You need to think about this if you have pure ESP8266 module. If you have custom board with USB like NodeMCU development kit or WeMos board, then most likely GPIO15 and GPIO2 are correctly connected internally, and GPIO0 is triggered from USB when flashing. Also on these boards can be flash button, which connects GPIO0 to LOW when pressed (so, you should press it while resetting MCU before flashing).
+It's important each time when you reset MCU. After resetting, these pins can be used as regular GPIO. You need to think about this if you have pure ESP8266 module. If you have custom board with USB like NodeMCU development kit or WeMos board, then most likely GPIO15 and GPIO2 are correctly connected internally, and GPIO0 is triggered from USB when flashing. Also on these boards can be flash button, which connects GPIO0 to LOW when pressed (so, you should press it while resetting MCU before flashing).
 
 -- TODO --
