@@ -46,5 +46,7 @@ settings = {
     coordinates = {
         latitude = 56.949376,
         longitude = 24.105186
-    }
+    },
+    -- writes output to file
+    write_log = false
 }
