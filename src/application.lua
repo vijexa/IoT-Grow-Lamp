@@ -9,6 +9,8 @@ settings.toggle_time.off = settings.toggle_time.off.hour*60 + settings.toggle_ti
 daylight_saving = nil
 current_time = {}
 
+local print = shared_obj.print
+
 -- checking if it is daylight saving time now
 function check_daylight_saving()
   if(daylight_saving == nil) then
@@ -29,7 +31,6 @@ function check_daylight_saving()
     days_end = days_end + settings.daylight_saving_period._end.month_day
 
     print("saving start "..days_start.." end "..days_end)
-    print((current_time.yday>days_start) and (current_time.yday<days_end))
     daylight_saving = (current_time.yday>days_start) and (current_time.yday<days_end)
   end
   return daylight_saving
