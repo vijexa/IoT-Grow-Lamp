@@ -30,7 +30,7 @@ settings = {
             min = 30
         }
     },
--- smoothly turn on and off lamp using PWM
+    -- smoothly turn on and off lamp using PWM
     fade = true,
     -- lamp will fully turn on after that time; start turning off before that time (but lamp will be turned off exactly in toggle_time.off)
     -- time in minutes
@@ -47,6 +47,13 @@ settings = {
         latitude = 56.949376,
         longitude = 24.105186
     },
+    -- DEBUG SETTINGS 
+    -- don't touch it if you don't need to
     -- writes output to file
-    write_log = false
+    write_log = false,
+    -- simulates that one day passed
+    day_pass = {
+        pass = false,
+        back_in_time = 10
+    }
 }
