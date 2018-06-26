@@ -11,7 +11,7 @@ if(settings.write_log) then
   print = function(input)
     _print(input)
     local stat = file.stat(".log")
-    if (stat.size > 3000000) then 
+    if (stat and stat.size > 3000000) then 
       file.remove(".log")
     end
     log_file = file.open(".log", "a+")
