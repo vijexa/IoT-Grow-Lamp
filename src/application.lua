@@ -43,6 +43,15 @@ function format_time()
   if current_time.hour >= 24 then current_time.hour = current_time.hour - 24 end
   print(current_time.hour..":"..current_time.min)
   current_time.time = current_time.hour*60 + current_time.min
+  -- debugging things
+  if(settings.day_pass.pass) then 
+    print("real  "..current_time.time)
+    while (current_time.time >= settings.toggle_time.off + 3) do
+      current_time.time = current_time.time - settings.day_pass.back_in_time;
+    end
+  end
+  print("formatted  "..current_time.time)
+  print("on "..settings.toggle_time.on.." off "..settings.toggle_time.off)
 end
 
 function DIV(a,b)
