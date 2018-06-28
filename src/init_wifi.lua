@@ -10,16 +10,17 @@ local print = nil
 if(settings.write_log) then
   print = function(input)
     _print(input)
-    if(input) then
-      local stat = file.stat(".log")
-      if (stat and stat.size > 3000000) then 
-        file.remove(".log")
-      end
-      log_file = file.open(".log", "a+")
-      if (log_file) then 
-        log_file:writeline(input)
-        log_file:close()
-      end
+    if(input == nil) then
+      input = "nil"
+    end
+    local stat = file.stat(".log")
+    if (stat and stat.size > 3000000) then 
+      file.remove(".log")
+    end
+    log_file = file.open(".log", "a+")
+    if (log_file) then 
+      log_file:writeline(input)
+      log_file:close()
     end
   end
   print("\n")

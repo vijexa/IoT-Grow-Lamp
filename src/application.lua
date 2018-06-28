@@ -167,14 +167,18 @@ sntp.sync(settings.time_server,
                 timer:start()
               end
             end, function(err, info) 
+              print("<ERR>")
               print("error: ")
               print(err)
               print("while sntp.sync(): ")
               print(info)
+              print("</ERR>")
             end)
           end)
           if (status) then
-             print(err)
+              print("<ERR>")
+              print(err)
+              print("</ERR>")
           end
         end)
       end
