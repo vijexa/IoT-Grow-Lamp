@@ -145,27 +145,37 @@ sntp.sync(settings.time_server,
         maintain_lamp()
 
         tmr.create():alarm(settings.sleep_time/1000, tmr.ALARM_SEMI, function(timer) 
-          sntp.sync(settings.time_server, function()
-            format_time()
-            local time_left
-            if(settings.fade) then
-              time_left = settings.toggle_time.off-settings.fade_time-current_time.time
-            else 
-              time_left = settings.toggle_time.off-current_time.time
-            end
-            -- if time left for waiting is less than specified sleep time then module need to wait less
-            if(time_left<=DIV(settings.sleep_time, MINUTE_NS)) and (time_left>=0) then
-              print("waiting     time left "..time_left)
-              timer:unregister()
-              tmr.create():alarm(time_left*MINUTE_MS, tmr.ALARM_SINGLE, function()
-                format_time()
-                maintain_lamp()
-              end) 
-            else
-              print("waiting")
-              timer:start()
-            end
+          local status, err = pcall(function()
+            sntp.sync(settings.time_server, function()
+              format_time()
+              local time_left
+              if(settings.fade) then
+                time_left = settings.toggle_time.off-settings.fade_time-current_time.time
+              else 
+                time_left = settings.toggle_time.off-current_time.time
+              end
+              -- if time left for waiting is less than specified sleep time then module need to wait less
+              if(time_left<=DIV(settings.sleep_time, MINUTE_NS)) and (time_left>=0) then
+                print("waiting     time left "..time_left)
+                timer:unregister()
+                tmr.create():alarm(time_left*MINUTE_MS, tmr.ALARM_SINGLE, function()
+                  format_time()
+                  maintain_lamp()
+                end) 
+              else
+                print("waiting")
+                timer:start()
+              end
+            end, function(err, info) 
+              print("error: ")
+              print(err)
+              print("while sntp.sync(): ")
+              print(info)
+            end)
           end)
+          if (status) then
+             print(err)
+          end
         end)
       end
     end
