@@ -47,7 +47,7 @@ end
 wifi_got_ip_event = function(T) 
 	-- Note: Having an IP address does not mean there is internet access!
 	-- Internet connectivity can be determined with net.dns.resolve().    
-	print("IP: "..T.IP.." "..wifi.sta.getmac())
+	print("IP: "..T.IP.." "..wifi.sta.getmac().."\n")
 	if (not startup_evaluated) then 
 		_print("Startup will resume momentarily, you have 1 second to abort.")
 		_print("Waiting...") 
@@ -62,11 +62,11 @@ wifi_disconnect_event = function(T)
 	end
 	-- total_tries: how many times the station will attempt to connect to the AP. Should consider AP reboot duration.
 	local total_tries = 75
-	print("\nWiFi connection to AP("..T.SSID..") has failed!")
+	print("\nWiFi connection failed!")
 
 	for key,val in pairs(wifi.eventmon.reason) do
 		if (val == T.reason) then
-			print("Disconnect reason: "..val.."("..key..")")
+			print("Reason: "..val.."("..key..")")
 			break
 		end
 	end
@@ -77,7 +77,7 @@ wifi_disconnect_event = function(T)
 		disconnect_ct = disconnect_ct + 1 
 	end
 	if (disconnect_ct < total_tries) then 
-		print("Retrying connection...(attempt "..(disconnect_ct + 1).." of "..total_tries..")")
+		print("Retrying...("..(disconnect_ct + 1).." of "..total_tries..")")
 	else
 		wifi.sta.disconnect()
 		print("Aborting connection to AP!")
