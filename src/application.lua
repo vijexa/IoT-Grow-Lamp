@@ -2,7 +2,6 @@ MINUTE_NS = 60 * 1000000 -- 60 * 1 000 000 is one minute in ns (nanoseconds)
 MINUTE_MS = 60 * 1000    -- in ms (milliseconds)
 
 startup_evaluated = true
-lamp_pin = 2
 pwm_freq = 1000
 settings.toggle_time.on = settings.toggle_time.on.hour * 60 + settings.toggle_time.on.min
 settings.toggle_time.off = settings.toggle_time.off.hour * 60 + settings.toggle_time.off.min
@@ -104,16 +103,16 @@ sntp.sync(settings.time_server,
 						local number_of_steps = math.floor(map(time_to_end, 0, settings.fade_time, 1023, 0))
 						local step_time = DIV(time_to_end * MINUTE_MS, 1023 - number_of_steps)
 						local duty = number_of_steps
-						pwm.setup(lamp_pin, pwm_freq, duty)
-						pwm.start(lamp_pin)
+						pwm.setup(settings.lamp_pin, pwm_freq, duty)
+						pwm.start(settings.lamp_pin)
 						tmr.create():alarm(step_time, tmr.ALARM_AUTO, function(timer)
 							duty = duty + 1
 							print(fade_functions[settings.fade_function](duty).." - "..duty)
-							pwm.setduty(lamp_pin, fade_functions[settings.fade_function](duty))
+							pwm.setduty(settings.lamp_pin, fade_functions[settings.fade_function](duty))
 							if(duty >= 1023) then
-								pwm.stop(lamp_pin)
-								pwm.close(lamp_pin)
-								gpio.write(lamp_pin, gpio.HIGH)
+								pwm.stop(settings.lamp_pin)
+								pwm.close(settings.lamp_pin)
+								gpio.write(settings.lamp_pin, gpio.HIGH)
 								timer:stop()
 								timer:unregister()
 							end
@@ -124,23 +123,23 @@ sntp.sync(settings.time_server,
 						local number_of_steps = map(time_to_end, 0, settings.fade_time, 0, 1023)
 						local step_time = DIV(time_to_end * MINUTE_MS, number_of_steps)
 						local duty = number_of_steps
-						pwm.setup(lamp_pin, pwm_freq, duty)
-						pwm.start(lamp_pin)
+						pwm.setup(settings.lamp_pin, pwm_freq, duty)
+						pwm.start(settings.lamp_pin)
 						tmr.create():alarm(step_time, tmr.ALARM_AUTO, function(timer)
 							duty = duty - 1
 							print(fade_functions[settings.fade_function](duty).." - "..duty)
 							pwm.setduty(lamp_pin, fade_functions[settings.fade_function](duty))
 							if(duty <= 0) then
-								pwm.stop(lamp_pin)
-								pwm.close(lamp_pin)
-								gpio.write(lamp_pin, gpio.LOW)
+								pwm.stop(settings.lamp_pin)
+								pwm.close(settings.lamp_pin)
+								gpio.write(settings.lamp_pin, gpio.LOW)
 								timer:stop()
 								timer:unregister()
 								rtctime.dsleep(1)
 							end
 						end)
 					else
-						gpio.write(lamp_pin, gpio.HIGH)
+						gpio.write(settings.lamp_pin, gpio.HIGH)
 					end
 				end
 
@@ -183,7 +182,7 @@ sntp.sync(settings.time_server,
 					end)
 					if (not status) then
 						print("\n<ERR>")
-							print(err)
+						print(err)
 						print("</ERR>\n")
 					end
 				end)
