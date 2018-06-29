@@ -170,21 +170,21 @@ sntp.sync(settings.time_server,
 								timer:start()
 							end
 						end, function(err, info) 
-							print("<ERR>")
+							print("\n<ERR>")
 							print("error: ")
 							print(err)
 							print("while sntp.sync(): ")
 							print(info)
 							print("</ERR>")
-							print("waiting for conn")
+							print("waiting for conn\n")
 							timer:interval(settings.wait_connection_time * MINUTE_MS)
 							timer:start()
 						end)
 					end)
 					if (not status) then
-							print("<ERR>")
+						print("\n<ERR>")
 							print(err)
-							print("</ERR>")
+						print("</ERR>\n")
 					end
 				end)
 			end
