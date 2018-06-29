@@ -39,7 +39,7 @@ function format_time()
 	current_time = rtctime.epoch2cal(rtctime.get())
 	current_time.hour = current_time.hour + settings.GMT
 	if (settings.daylight_saving == true) and (check_daylight_saving()) then current_time.hour = current_time.hour + 1 end
-	if current_time.hour >= 24 then current_time.hour = current_time.hour - 24 end
+	if (current_time.hour >= 24) then current_time.hour = current_time.hour - 24 end
 	print(current_time.hour..":"..current_time.min)
 	current_time.time = current_time.hour * 60 + current_time.min
 	-- debugging things
@@ -63,11 +63,11 @@ end
 
 -- sync time
 sntp.sync(settings.time_server,
-
 	function(sec, usec, server, info)
 		format_time()
 
 		function routine()
+
 			-- night time
 			if (current_time.time >= settings.toggle_time.off) or (current_time.time < settings.toggle_time.on) then 
 				local time_left = settings.toggle_time.on - current_time.time
@@ -80,6 +80,7 @@ sntp.sync(settings.time_server,
 					rtctime.dsleep(settings.sleep_time * MINUTE_NS)
 				end
 			else 
+
 				fade_functions = {
 					-- linear
 					function(x)
@@ -94,9 +95,11 @@ sntp.sync(settings.time_server,
 						return math.floor(2 ^ (x * 0.0097738) + 0.5)
 					end
 				}
+
 				-- day time
 				local function maintain_lamp()
 					print("lamp on") 
+
 					-- turning lamp on
 					if(settings.fade) and (current_time.time - settings.toggle_time.on <= settings.fade_time) then
 						local time_to_end = settings.toggle_time.on + settings.fade_time - current_time.time
@@ -117,6 +120,7 @@ sntp.sync(settings.time_server,
 								timer:unregister()
 							end
 						end)
+
 					-- turning lamp off
 					elseif (settings.fade) and (settings.toggle_time.off - current_time.time <= settings.fade_time) then
 						local time_to_end = settings.toggle_time.off - current_time.time
