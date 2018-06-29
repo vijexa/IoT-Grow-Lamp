@@ -70,15 +70,15 @@ sntp.sync(settings.time_server,
 
     function routine()
       -- night time
-      if (current_time.time>=settings.toggle_time.off) or (current_time.time<settings.toggle_time.on) then 
-        local time_left = settings.toggle_time.on-current_time.time
+      if (current_time.time >= settings.toggle_time.off) or (current_time.time < settings.toggle_time.on) then 
+        local time_left = settings.toggle_time.on - current_time.time
         -- if time left for sleep is less than specified sleep time then module need to sleep less
-        if(time_left<=DIV(settings.sleep_time, MINUTE_NS)) and (time_left>=0) then  
+        if(time_left <= settings.sleep_time) and (time_left >= 0) then  
           print("sleep     time left "..time_left)
-          rtctime.dsleep(time_left*MINUTE_NS)
+          rtctime.dsleep(time_left * MINUTE_NS)
         else
           print("sleep")
-          rtctime.dsleep(settings.sleep_time)
+          rtctime.dsleep(settings.sleep_time * MINUTE_NS)
         end
       else 
         fade_functions = {
@@ -98,10 +98,11 @@ sntp.sync(settings.time_server,
         -- day time
         local function maintain_lamp()
           print("lamp on") 
-          if(settings.fade) and (current_time.time-settings.toggle_time.on<=settings.fade_time) then
+          -- turning lamp on
+          if(settings.fade) and (current_time.time - settings.toggle_time.on <= settings.fade_time) then
             local time_to_end = settings.toggle_time.on + settings.fade_time - current_time.time
             local number_of_steps = math.floor(map(time_to_end, 0, settings.fade_time, 1023, 0))
-            local step_time = DIV(time_to_end*MINUTE_MS, 1023-number_of_steps)
+            local step_time = DIV(time_to_end * MINUTE_MS, 1023 - number_of_steps)
             local duty = number_of_steps
             pwm.setup(lamp_pin, pwm_freq, duty)
             pwm.start(lamp_pin)
@@ -117,10 +118,11 @@ sntp.sync(settings.time_server,
                 timer:unregister()
               end
             end)
-          elseif (settings.fade) and (settings.toggle_time.off-current_time.time<=settings.fade_time) then
+          -- turning lamp off
+          elseif (settings.fade) and (settings.toggle_time.off - current_time.time <= settings.fade_time) then
             local time_to_end = settings.toggle_time.off - current_time.time
             local number_of_steps = map(time_to_end, 0, settings.fade_time, 0, 1023)
-            local step_time = DIV(time_to_end*MINUTE_MS, number_of_steps)
+            local step_time = DIV(time_to_end * MINUTE_MS, number_of_steps)
             local duty = number_of_steps
             pwm.setup(lamp_pin, pwm_freq, duty)
             pwm.start(lamp_pin)
@@ -144,9 +146,10 @@ sntp.sync(settings.time_server,
 
         maintain_lamp()
 
-        tmr.create():alarm(settings.sleep_time/1000, tmr.ALARM_SEMI, function(timer) 
+        tmr.create():alarm(settings.sleep_time * MINUTE_MS, tmr.ALARM_SEMI, function(timer) 
           local status, err = pcall(function()
             sntp.sync(settings.time_server, function()
+              timer:interval(settings.sleep_time * MINUTE_MS)
               format_time()
               local time_left
               if(settings.fade) then
@@ -155,7 +158,7 @@ sntp.sync(settings.time_server,
                 time_left = settings.toggle_time.off-current_time.time
               end
               -- if time left for waiting is less than specified sleep time then module need to wait less
-              if(time_left<=DIV(settings.sleep_time, MINUTE_NS)) and (time_left>=0) then
+              if(time_left <= settings.sleep_time) and (time_left >= 0) then
                 print("waiting     time left "..time_left)
                 timer:unregister()
                 tmr.create():alarm(time_left*MINUTE_MS, tmr.ALARM_SINGLE, function()
@@ -173,6 +176,9 @@ sntp.sync(settings.time_server,
               print("while sntp.sync(): ")
               print(info)
               print("</ERR>")
+              print("waiting for conn")
+              timer:interval(settings.wait_connection_time * MINUTE_MS)
+              timer:start()
             end)
           end)
           if (not status) then

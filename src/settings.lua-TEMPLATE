@@ -2,9 +2,12 @@ sta_cred = {
     ssid = "foo",
     pwd = "bar"
 }
+
 settings = {
     time_server = "time.google.com",
-    sleep_time = 30*60*1000000, --ns
+    sleep_time = 10, -- minutes
+    -- interval between failed time syncing attempts
+    wait_connection_time = 1, -- minutes
     GMT = 2,
     -- some countries add +1 hour in daylight saving time
     daylight_saving = true,
@@ -39,7 +42,6 @@ settings = {
     fade_time = 30,
     -- fade function; 1 - linear; 2 - parabola; 3 - exponent
     fade_function = 3,
-
     -- use sunset/rise times
     use_sun_times = false,
     -- coordinates for sunset/rise time acquiring (in google maps coords first number is latitude, second longitude)
