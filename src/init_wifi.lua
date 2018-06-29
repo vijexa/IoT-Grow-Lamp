@@ -81,7 +81,8 @@ wifi_disconnect_event = function(T)
 	else
 		wifi.sta.disconnect()
 		print("Aborting connection to AP!")
-		disconnect_ct = nil  
+		disconnect_ct = nil
+		rtctime.dsleep(1)  
 	end
 end
 
