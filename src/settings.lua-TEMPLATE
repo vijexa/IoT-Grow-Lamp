@@ -4,7 +4,11 @@ sta_cred = {
 }
 
 settings = {
+    -- pin to which is connected lamp
+    lamp_pin = 2,
+    -- sntp time server with UTC time 
     time_server = "time.google.com",
+    -- interval between time syncing
     sleep_time = 10, -- minutes
     -- interval between failed time syncing attempts
     wait_connection_time = 1, -- minutes

@@ -2,7 +2,6 @@ MINUTE_NS = 60 * 1000000 -- 60 * 1 000 000 is one minute in ns (nanoseconds)
 MINUTE_MS = 60 * 1000    -- in ms (milliseconds)
 
 startup_evaluated = true
-lamp_pin = 2
 pwm_freq = 1000
 settings.toggle_time.on = settings.toggle_time.on.hour * 60 + settings.toggle_time.on.min
 settings.toggle_time.off = settings.toggle_time.off.hour * 60 + settings.toggle_time.off.min
@@ -40,7 +39,7 @@ function format_time()
 	current_time = rtctime.epoch2cal(rtctime.get())
 	current_time.hour = current_time.hour + settings.GMT
 	if (settings.daylight_saving == true) and (check_daylight_saving()) then current_time.hour = current_time.hour + 1 end
-	if current_time.hour >= 24 then current_time.hour = current_time.hour - 24 end
+	if (current_time.hour >= 24) then current_time.hour = current_time.hour - 24 end
 	print(current_time.hour..":"..current_time.min)
 	current_time.time = current_time.hour * 60 + current_time.min
 	-- debugging things
@@ -54,7 +53,7 @@ function format_time()
 	print("on "..settings.toggle_time.on.." off "..settings.toggle_time.off)
 end
 
-function DIV(a,b)
+function DIV(a, b)
 	return (a - a % b) / b
 end
 
@@ -64,11 +63,11 @@ end
 
 -- sync time
 sntp.sync(settings.time_server,
-
 	function(sec, usec, server, info)
 		format_time()
 
 		function routine()
+
 			-- night time
 			if (current_time.time >= settings.toggle_time.off) or (current_time.time < settings.toggle_time.on) then 
 				local time_left = settings.toggle_time.on - current_time.time
@@ -81,6 +80,7 @@ sntp.sync(settings.time_server,
 					rtctime.dsleep(settings.sleep_time * MINUTE_NS)
 				end
 			else 
+
 				fade_functions = {
 					-- linear
 					function(x)
@@ -88,103 +88,115 @@ sntp.sync(settings.time_server,
 					end,
 					-- parabola
 					function(x) 
-						return math.floor((1/1024)*(x^2)+1 + 0.5)
+						return math.floor((1 / 1024) * (x ^ 2) + 1 + 0.5)
 					end,
 					-- exponent
 					function(x)
-						return math.floor(2^(x*0.0097738) + 0.5)
+						return math.floor(2 ^ (x * 0.0097738) + 0.5)
 					end
 				}
+
 				-- day time
 				local function maintain_lamp()
 					print("lamp on") 
+
 					-- turning lamp on
 					if(settings.fade) and (current_time.time - settings.toggle_time.on <= settings.fade_time) then
 						local time_to_end = settings.toggle_time.on + settings.fade_time - current_time.time
 						local number_of_steps = math.floor(map(time_to_end, 0, settings.fade_time, 1023, 0))
 						local step_time = DIV(time_to_end * MINUTE_MS, 1023 - number_of_steps)
 						local duty = number_of_steps
-						pwm.setup(lamp_pin, pwm_freq, duty)
-						pwm.start(lamp_pin)
+						pwm.setup(settings.lamp_pin, pwm_freq, duty)
+						pwm.start(settings.lamp_pin)
 						tmr.create():alarm(step_time, tmr.ALARM_AUTO, function(timer)
 							duty = duty + 1
 							print(fade_functions[settings.fade_function](duty).." - "..duty)
-							pwm.setduty(lamp_pin, fade_functions[settings.fade_function](duty))
+							pwm.setduty(settings.lamp_pin, fade_functions[settings.fade_function](duty))
 							if(duty >= 1023) then
-								pwm.stop(lamp_pin)
-								pwm.close(lamp_pin)
-								gpio.write(lamp_pin, gpio.HIGH)
+								pwm.stop(settings.lamp_pin)
+								pwm.close(settings.lamp_pin)
+								gpio.write(settings.lamp_pin, gpio.HIGH)
 								timer:stop()
 								timer:unregister()
 							end
 						end)
+
 					-- turning lamp off
 					elseif (settings.fade) and (settings.toggle_time.off - current_time.time <= settings.fade_time) then
 						local time_to_end = settings.toggle_time.off - current_time.time
 						local number_of_steps = map(time_to_end, 0, settings.fade_time, 0, 1023)
 						local step_time = DIV(time_to_end * MINUTE_MS, number_of_steps)
 						local duty = number_of_steps
-						pwm.setup(lamp_pin, pwm_freq, duty)
-						pwm.start(lamp_pin)
+						pwm.setup(settings.lamp_pin, pwm_freq, duty)
+						pwm.start(settings.lamp_pin)
 						tmr.create():alarm(step_time, tmr.ALARM_AUTO, function(timer)
 							duty = duty - 1
 							print(fade_functions[settings.fade_function](duty).." - "..duty)
 							pwm.setduty(lamp_pin, fade_functions[settings.fade_function](duty))
 							if(duty <= 0) then
-								pwm.stop(lamp_pin)
-								pwm.close(lamp_pin)
-								gpio.write(lamp_pin, gpio.LOW)
+								pwm.stop(settings.lamp_pin)
+								pwm.close(settings.lamp_pin)
+								gpio.write(settings.lamp_pin, gpio.LOW)
 								timer:stop()
 								timer:unregister()
 								rtctime.dsleep(1)
 							end
 						end)
 					else
-						gpio.write(lamp_pin, gpio.HIGH)
+						gpio.write(settings.lamp_pin, gpio.HIGH)
 					end
 				end
 
 				maintain_lamp()
 
+				-- check if it's time for turning lamp off
+				function daylight_wait(timer)
+					format_time()
+					local time_left
+					if(settings.fade) then
+						time_left = settings.toggle_time.off - settings.fade_time - current_time.time
+					else 
+						time_left = settings.toggle_time.off - current_time.time
+					end
+					-- if time left for waiting is less than specified sleep time then module needs to wait less
+					if(time_left <= settings.sleep_time) and (time_left >= 0) then
+						print("waiting     time left "..time_left)
+						timer:unregister()
+						tmr.create():alarm(time_left * MINUTE_MS, tmr.ALARM_SINGLE, function()
+							format_time()
+							maintain_lamp()
+						end) 
+					else
+						print("waiting")
+						timer:start()
+					end
+				end
+
+				-- time checking loop for daytime
 				tmr.create():alarm(settings.sleep_time * MINUTE_MS, tmr.ALARM_SEMI, function(timer) 
 					local status, err = pcall(function()
 						sntp.sync(settings.time_server, function()
 							timer:interval(settings.sleep_time * MINUTE_MS)
-							format_time()
-							local time_left
-							if(settings.fade) then
-								time_left = settings.toggle_time.off - settings.fade_time - current_time.time
-							else 
-								time_left = settings.toggle_time.off - current_time.time
-							end
-							-- if time left for waiting is less than specified sleep time then module need to wait less
-							if(time_left <= settings.sleep_time) and (time_left >= 0) then
-								print("waiting     time left "..time_left)
-								timer:unregister()
-								tmr.create():alarm(time_left * MINUTE_MS, tmr.ALARM_SINGLE, function()
-									format_time()
-									maintain_lamp()
-								end) 
-							else
-								print("waiting")
-								timer:start()
-							end
-						end, function(err, info) 
-							print("<ERR>")
+							daylight_wait(timer)
+						end,
+						-- if syncing has failed esp will use internal RTC, but it'll check time with smaller intervals 
+						-- specified by settings.wait_connection_time until succesful sync 
+						function(err, info) 
+							print("\n<ERR>")
 							print("error: ")
 							print(err)
 							print("while sntp.sync(): ")
 							print(info)
 							print("</ERR>")
-							print("waiting for conn")
+							print("waiting for conn\n")
 							timer:interval(settings.wait_connection_time * MINUTE_MS)
-							timer:start()
+							daylight_wait(timer)
 						end)
 					end)
 					if (not status) then
-							print("<ERR>")
-							print(err)
-							print("</ERR>")
+						print("\n<ERR>")
+						print(err)
+						print("</ERR>\n")
 					end
 				end)
 			end
@@ -215,7 +227,7 @@ sntp.sync(settings.time_server,
 					local data = {}
 					local function convert(raw_time)
 						local val = tonumber(string.match(raw_time, "(.-):")) + settings.GMT + (check_daylight_saving() and 1 or 0)
-						val = (val + (string.match(raw_time, " (.+)") == "PM" and 12 or 0))*60
+						val = (val + (string.match(raw_time, " (.+)") == "PM" and 12 or 0)) * 60
 						return val + tonumber(string.match(raw_time, "(.-):"))
 					end
 					data.sunrise = convert(raw_data.results.sunrise)
