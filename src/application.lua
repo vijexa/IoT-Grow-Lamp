@@ -53,7 +53,7 @@ function format_time()
 	print("on "..settings.toggle_time.on.." off "..settings.toggle_time.off)
 end
 
-function DIV(a,b)
+function DIV(a, b)
 	return (a - a % b) / b
 end
 
@@ -149,30 +149,39 @@ sntp.sync(settings.time_server,
 
 				maintain_lamp()
 
+				-- check if it's time for turning lamp off
+				function daylight_wait(timer)
+					format_time()
+					local time_left
+					if(settings.fade) then
+						time_left = settings.toggle_time.off - settings.fade_time - current_time.time
+					else 
+						time_left = settings.toggle_time.off - current_time.time
+					end
+					-- if time left for waiting is less than specified sleep time then module needs to wait less
+					if(time_left <= settings.sleep_time) and (time_left >= 0) then
+						print("waiting     time left "..time_left)
+						timer:unregister()
+						tmr.create():alarm(time_left * MINUTE_MS, tmr.ALARM_SINGLE, function()
+							format_time()
+							maintain_lamp()
+						end) 
+					else
+						print("waiting")
+						timer:start()
+					end
+				end
+
+				-- time checking loop for daytime
 				tmr.create():alarm(settings.sleep_time * MINUTE_MS, tmr.ALARM_SEMI, function(timer) 
 					local status, err = pcall(function()
 						sntp.sync(settings.time_server, function()
 							timer:interval(settings.sleep_time * MINUTE_MS)
-							format_time()
-							local time_left
-							if(settings.fade) then
-								time_left = settings.toggle_time.off - settings.fade_time - current_time.time
-							else 
-								time_left = settings.toggle_time.off - current_time.time
-							end
-							-- if time left for waiting is less than specified sleep time then module need to wait less
-							if(time_left <= settings.sleep_time) and (time_left >= 0) then
-								print("waiting     time left "..time_left)
-								timer:unregister()
-								tmr.create():alarm(time_left * MINUTE_MS, tmr.ALARM_SINGLE, function()
-									format_time()
-									maintain_lamp()
-								end) 
-							else
-								print("waiting")
-								timer:start()
-							end
-						end, function(err, info) 
+							daylight_wait(timer)
+						end,
+						-- if syncing has failed esp will use internal RTC, but it'll check time with smaller intervals 
+						-- specified by settings.wait_connection_time until succesful sync 
+						function(err, info) 
 							print("\n<ERR>")
 							print("error: ")
 							print(err)
@@ -181,7 +190,7 @@ sntp.sync(settings.time_server,
 							print("</ERR>")
 							print("waiting for conn\n")
 							timer:interval(settings.wait_connection_time * MINUTE_MS)
-							timer:start()
+							daylight_wait(timer)
 						end)
 					end)
 					if (not status) then
@@ -218,7 +227,7 @@ sntp.sync(settings.time_server,
 					local data = {}
 					local function convert(raw_time)
 						local val = tonumber(string.match(raw_time, "(.-):")) + settings.GMT + (check_daylight_saving() and 1 or 0)
-						val = (val + (string.match(raw_time, " (.+)") == "PM" and 12 or 0))*60
+						val = (val + (string.match(raw_time, " (.+)") == "PM" and 12 or 0)) * 60
 						return val + tonumber(string.match(raw_time, "(.-):"))
 					end
 					data.sunrise = convert(raw_data.results.sunrise)
