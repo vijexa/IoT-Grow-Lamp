@@ -88,11 +88,11 @@ sntp.sync(settings.time_server,
 					end,
 					-- parabola
 					function(x) 
-						return math.floor((1/1024)*(x^2)+1 + 0.5)
+						return math.floor((1 / 1024) * (x ^ 2) + 1 + 0.5)
 					end,
 					-- exponent
 					function(x)
-						return math.floor(2^(x*0.0097738) + 0.5)
+						return math.floor(2 ^ (x * 0.0097738) + 0.5)
 					end
 				}
 				-- day time
