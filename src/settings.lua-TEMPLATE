@@ -2,9 +2,12 @@ sta_cred = {
     ssid = "foo",
     pwd = "bar"
 }
+
 settings = {
     time_server = "time.google.com",
-    sleep_time = 30*60*1000000, --ns
+    sleep_time = 10, -- minutes
+    -- interval between failed time syncing attempts
+    wait_connection_time = 1, -- minutes
     GMT = 2,
     -- some countries add +1 hour in daylight saving time
     daylight_saving = true,
@@ -30,7 +33,7 @@ settings = {
             min = 30
         }
     },
--- smoothly turn on and off lamp using PWM
+    -- smoothly turn on and off lamp using PWM
     fade = true,
     -- lamp will fully turn on after that time; start turning off before that time (but lamp will be turned off exactly in toggle_time.off)
     -- time in minutes
@@ -39,7 +42,6 @@ settings = {
     fade_time = 30,
     -- fade function; 1 - linear; 2 - parabola; 3 - exponent
     fade_function = 3,
-
     -- use sunset/rise times
     use_sun_times = false,
     -- coordinates for sunset/rise time acquiring (in google maps coords first number is latitude, second longitude)
@@ -47,6 +49,13 @@ settings = {
         latitude = 56.949376,
         longitude = 24.105186
     },
+    -- DEBUG SETTINGS 
+    -- don't touch it if you don't need to
     -- writes output to file
-    write_log = false
+    write_log = false,
+    -- simulates that one day passed
+    day_pass = {
+        pass = false,
+        back_in_time = 10
+    }
 }
