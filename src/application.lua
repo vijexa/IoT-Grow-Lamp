@@ -175,7 +175,7 @@ sntp.sync(settings.time_server,
               print("</ERR>")
             end)
           end)
-          if (status) then
+          if (not status) then
               print("<ERR>")
               print(err)
               print("</ERR>")
