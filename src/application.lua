@@ -172,9 +172,15 @@ sntp.sync(settings.time_server,
 					end
 				end
 
+				-- we don't need to check time while lamp is turning on
+				local first_wait_time
+				if (current_time.time < settings.toggle_time.on + settings.fade_time) then 
+					first_wait_time = settings.toggle_time.on + settings.fade_time - current_time.time
+				else 
+					first_wait_time = settings.sleep_time
+				end
 				-- time checking loop for daytime
-				tmr.create():alarm(settings.sleep_time * MINUTE_MS, tmr.ALARM_SEMI, function(timer) 
-					local status, err = pcall(function()
+				tmr.create():alarm(first_wait_time * MINUTE_MS, tmr.ALARM_SEMI, function(timer) 
 						sntp.sync(settings.time_server, function()
 							timer:interval(settings.sleep_time * MINUTE_MS)
 							daylight_wait(timer)
