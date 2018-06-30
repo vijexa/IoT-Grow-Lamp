@@ -1,3 +1,6 @@
+print("app launched heap "..node.heap())
+print(node.heap())
+
 MINUTE_NS = 60 * 1000000 -- 60 * 1 000 000 is one minute in ns (nanoseconds)
 MINUTE_MS = 60 * 1000    -- in ms (milliseconds)
 
@@ -181,29 +184,23 @@ sntp.sync(settings.time_server,
 				end
 				-- time checking loop for daytime
 				tmr.create():alarm(first_wait_time * MINUTE_MS, tmr.ALARM_SEMI, function(timer) 
-						sntp.sync(settings.time_server, function()
-							timer:interval(settings.sleep_time * MINUTE_MS)
-							daylight_wait(timer)
-						end,
-						-- if syncing has failed esp will use internal RTC, but it'll check time with smaller intervals 
-						-- specified by settings.wait_connection_time until succesful sync 
-						function(err, info) 
-							print("\n<ERR>")
-							print("error: ")
-							print(err)
-							print("while sntp.sync(): ")
-							print(info)
-							print("</ERR>")
-							print("waiting for conn\n")
-							timer:interval(settings.wait_connection_time * MINUTE_MS)
-							daylight_wait(timer)
-						end)
-					end)
-					if (not status) then
+					sntp.sync(settings.time_server, function()
+						timer:interval(settings.sleep_time * MINUTE_MS)
+						daylight_wait(timer)
+					end,
+					-- if syncing has failed esp will use internal RTC, but it'll check time with smaller intervals 
+					-- specified by settings.wait_connection_time until succesful sync 
+					function(err, info) 
 						print("\n<ERR>")
+						print("error: ")
 						print(err)
-						print("</ERR>\n")
-					end
+						print("while sntp.sync(): ")
+						print(info)
+						print("</ERR>")
+						print("waiting for conn\n")
+						timer:interval(settings.wait_connection_time * MINUTE_MS)
+						daylight_wait(timer)
+					end)
 				end)
 			end
 		end
@@ -258,6 +255,6 @@ sntp.sync(settings.time_server,
 	end,
 
 	function()
-	 print('failed!')
+	print('failed!')
 	end
 ) 
