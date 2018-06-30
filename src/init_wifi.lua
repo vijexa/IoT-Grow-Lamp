@@ -2,7 +2,7 @@
 dofile("settings.lua")
 
 -- debug
-log_file = nil;
+local log_file = nil;
 
 local _print = print;
 local print = nil
@@ -35,6 +35,7 @@ startup_evaluated = false
 
 function startup()
 	-- the actual application is stored in 'application.lua'
+	if (settings.check_heap) then print("\n////launching app heap "..node.heap()) end
 	dofile("application.lua")
 end
 

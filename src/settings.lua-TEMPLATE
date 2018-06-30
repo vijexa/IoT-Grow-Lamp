@@ -26,7 +26,7 @@ settings = {
             month_day = 29
         }
     },
-    -- set on/off time if daylight_saving = false
+    -- set on/off time if use_sun_times (lower) is false
     toggle_time = {
         on = {
             hour = 10,
@@ -61,5 +61,7 @@ settings = {
     day_pass = {
         pass = false,
         back_in_time = 10
-    }
+    }, 
+    -- checks available heap size in beginning of every .lua file
+    check_heap = true
 }
