@@ -1,5 +1,7 @@
-print("app launched heap "..node.heap())
-print(node.heap())
+if (settings.check_heap) then 
+	print("\n////app launched heap "..node.heap()) 
+	print("////"..node.heap())
+end
 
 MINUTE_NS = 60 * 1000000 -- 60 * 1 000 000 is one minute in ns (nanoseconds)
 MINUTE_MS = 60 * 1000    -- in ms (milliseconds)

@@ -35,7 +35,7 @@ startup_evaluated = false
 
 function startup()
 	-- the actual application is stored in 'application.lua'
-	print("launching app heap "..node.heap())
+	if (settings.check_heap) then print("\n////launching app heap "..node.heap()) end
 	dofile("application.lua")
 end
 

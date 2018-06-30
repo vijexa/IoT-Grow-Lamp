@@ -61,5 +61,7 @@ settings = {
     day_pass = {
         pass = false,
         back_in_time = 10
-    }
+    }, 
+    -- checks available heap size in beginning of every .lua file
+    check_heap = true
 }
