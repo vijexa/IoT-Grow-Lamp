@@ -63,5 +63,5 @@ settings = {
         back_in_time = 10
     }, 
     -- checks available heap size in beginning of every .lua file
-    check_heap = true
+    check_heap = false
 }
