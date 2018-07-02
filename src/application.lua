@@ -39,9 +39,11 @@ sntp.sync(settings.time_server,
 				-- if time left for sleep is less than specified sleep time then module need to sleep less
 				if(time_left <= settings.sleep_time) and (time_left >= 0) then  
 					print("sleep     time left "..time_left)
+					print("------------------------------")
 					rtctime.dsleep(time_left * MINUTE_NS)
 				else
 					print("sleep")
+					print("------------------------------")
 					rtctime.dsleep(settings.sleep_time * MINUTE_NS)
 				end
 			else 
@@ -78,6 +80,7 @@ sntp.sync(settings.time_server,
 					-- if time left for waiting is less than specified sleep time then module needs to wait less
 					if(time_left <= settings.sleep_time) and (time_left >= 0) then
 						print("waiting     time left "..time_left)
+						print("------------------------------")
 						timer:unregister()
 						tmr.create():alarm(time_left * MINUTE_MS, tmr.ALARM_SINGLE, function()
 							format_time()
@@ -85,6 +88,7 @@ sntp.sync(settings.time_server,
 						end) 
 					else
 						print("waiting\n")
+						print("------------------------------")
 						timer:start()
 					end
 				end
