@@ -1,3 +1,5 @@
+local print = shared_obj.print
+
 if (settings.check_heap) then print("\n////maintain_lamp heap "..node.heap()) end
 
 function maintain_lamp()

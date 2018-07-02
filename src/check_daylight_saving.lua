@@ -1,3 +1,5 @@
+local print = shared_obj.print
+
 if (settings.check_heap) then print("\n////check_daylight_saving.lua heap "..node.heap()) end
 
 local daylight_saving = nil
