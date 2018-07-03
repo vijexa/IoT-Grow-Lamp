@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function finish {
+    rm -rf build_temp
+}
+trap finish EXIT
+
 usage() { 
     echo "Usage: $0 [-p <port>] [-b <baudrate>] [-c] [-f]" 1>&2 
     echo "-p : specifies device port (/dev/ttyUSB0 for example)" 1>&2
@@ -82,7 +87,7 @@ for filename in `dirname $0`/build_temp/*; do
     fi
     
 done
-rm -r build_temp
+rm -rf build_temp
 
 sudo node `dirname $0`/node_modules/nodemcu-tool/bin/nodemcu-tool.js -p $port -b $baudrate reset
 sudo node `dirname $0`/node_modules/nodemcu-tool/bin/nodemcu-tool.js -p $port -b $baudrate terminal
