@@ -1,3 +1,5 @@
+local print = shared_obj.print
+
 if (settings.check_heap) then print("\n////format_time.lua heap "..node.heap()) end
 
 function format_time() 

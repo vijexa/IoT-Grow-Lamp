@@ -1,3 +1,5 @@
+local print = shared_obj.print
+
 if (settings.check_heap) then print("\n////maintain_lamp heap "..node.heap()) end
 
 function maintain_lamp()
@@ -35,7 +37,7 @@ function maintain_lamp()
         tmr.create():alarm(step_time, tmr.ALARM_AUTO, function(timer)
             duty = duty - 1
             print(fade_functions[settings.fade_function](duty).." - "..duty)
-            pwm.setduty(lamp_pin, fade_functions[settings.fade_function](duty))
+            pwm.setduty(settings.lamp_pin, fade_functions[settings.fade_function](duty))
             if(duty <= 0) then
                 pwm.stop(settings.lamp_pin)
                 pwm.close(settings.lamp_pin)

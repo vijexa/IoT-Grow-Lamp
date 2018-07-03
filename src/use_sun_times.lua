@@ -1,3 +1,5 @@
+local print = shared_obj.print
+
 if (settings.check_heap) then print("\n////use_sun_times.lua heap "..node.heap()) end
 
 print("current time "..current_time.time)
