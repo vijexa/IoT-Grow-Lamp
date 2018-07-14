@@ -14,9 +14,9 @@ Name of your Wi-Fi network.
 
 Password of your Wi-Fi network.
 
-#### (int) lamp_pin 
+#### (int) lamp_pin
 
-Pin to which your relay/mosfet/etc is connected. Note that NodeMCU pin numbers differs from ESP8266 GPIO. 
+Pin to which your relay/mosfet/etc is connected. Note that NodeMCU pin numbers differs from ESP8266 GPIO. More info [here](https://nodemcu.readthedocs.io/en/master/en/modules/gpio/).
 
 #### (string) time_server
 
@@ -36,7 +36,7 @@ Your timezone.
 
 #### (boolean) daylight_saving
 
-Equate this to true if your country has daylight saving time.
+Assign this to true if your country has daylight saving time.
 
 #### daylight_saving_period
 
@@ -44,19 +44,46 @@ Write in when starts and ends daylight saving time in your country. Values in te
 
 #### toggle_time
 
-Time, when lamp should turn on and off. These values are ignored if use_sun_times == true (described lower).
+Time, when lamp should turn on and off. Currently, `toggle_time.off` should be higher than `toggle_time.on`. These values are ignored if `use_sun_times == true` (described lower).
+```lua
+0 <= hour <= 23
+0 <= min <= 59
+```
 
-#### fade
+#### (boolean) fade
 
 Lamp smoothly turns on and off during fade_time (described lower).
 
-#### fade_time
+#### (int) fade_time
 
 Time, during which lamp smoothly turns on and off.
 
-Lamp will start to turn on at toggle_time.on or sunrise and will be fully turned on when fade_time will pass.
+Lamp will start to turn on at `toggle_time.on` or sunrise and will be fully turned on when `fade_time` will pass.
 
--- TODO --
+Lamp will start to turn off at `toggle_time.off` or `sunset - fade_time` and will be fully turned off when `fade_time` will pass.
+
+#### (int) fade_function
+
+Human brightness perception is logarithmic due to the [Weber-Fechner law](https://en.wikipedia.org/wiki/Weber%E2%80%93Fechner_law). It means that changing brightness level from 2 to 3 (max value 1023) is a lot more visible than changing it from 1002 to 1003, so linear brightness changing is not the best solution.
+
+Program supports three smooth brightness changing functions:
+
+`fade_function = 1` – linear
+
+`fade_function = 2` – parabolic
+
+`fade_function = 3` – exponential (recommended)
+
+Linear – blue, parabolic - red, exponential - yellow. Green lines - max value (1023).
+![](https://image.ibb.co/imWJu8/BX2_R8_MZp_Cw.jpg)
+
+#### (boolean) use_sun_times
+
+Assign to true if you want to replace toggle_time with sunset and sunrise time for your location.
+
+#### coordinates
+
+Coordinates for sunset and sunrise time acquiring. You can get it from google maps. If you click somewhere on map you will see coordinates of that point presented by two numbers. First number is latitude, second – longitude. 
 
 ## Installing
 
@@ -88,7 +115,7 @@ After you downloaded firmware, you need to flash it on your ESP8266. There are a
 
 &nbsp;&nbsp;&nbsp;&nbsp;<https://nodemcu.readthedocs.io/en/master/en/flash/>
 
-I advice to use NodeMCU PyFlasher on windows (because you only need to download it and launch without any messing) and esptool.py on linux (because you can easily install it with pip and upload nodemcu firmware with one terminal command).
+I advice to use NodeMCU PyFlasher on windows (because you only need to download it and launch without any messing) and esptool.py on linux (because you can easily install it with pip and upload nodemcu firmware with one terminal command)
 
 On windows you can find COM port of connected ESP8266 through device manager, on linux - using this command:
 ```
@@ -112,7 +139,7 @@ You can read more about ESP8266 boot process here:
 
 It's important each time when you reset MCU. After resetting, these pins can be used as regular GPIO. You need to think about this if you have pure ESP8266 module. If you have custom board with USB like NodeMCU development kit or WeMos board, then most likely GPIO15 and GPIO2 are correctly connected internally, and GPIO0 is triggered from USB when flashing. Also on these boards can be flash button, which connects GPIO0 to LOW when pressed (so, you should press it while resetting MCU before flashing).
 
-After firmware uploading you should launch upload_build.bat or upload_build.sh if you are using windows or linux respectively. I recommend to compile code during uploading.
+After firmware uploading you should launch upload_build.bat or upload_build.sh if you are using windows or linux respectively. I recommend to compile code during uploading (described below).
 
 #### Windows uploader
 
@@ -140,6 +167,20 @@ For example:
 sudo ./upload_build.sh -p /dev/ttyUSB0 -f -c
 ```
 
+## Circuit 
 
+Just connect MOSFET gate or relay coil to `lamp_pin` (in case of using relay you shouldn't enable fading) and you are ready to go.
 
--- TODO --
+Example with MOSFET:
+
+![](https://image.ibb.co/ciV6go/Easy_EDA_A_Simple_and_Powerful_Electronic_Circuit_Design_Tool_Google_Chrome.png)
+
+Note that it's a RGB LED strip, and I've connected to MOSFET only red and blue LEDs, ignoring green. More about that in next paragraph.
+
+## Light source 
+
+Plants are green because they reflect green color. It's obvious, but from that we can get one important thesis - light source for growing shouldn't be white (better say - shouldn't contain green in its spectre), this just isn't effective. Plants need red and blue light spectres, and if you are making custom light system using monochrome red and blue LEDs you should note that it's better when red LEDs count is 2-4 times higher than blue ones.
+
+There are a lot of LED strips with red and blue LEDs in correct ratio. You can even find powerful 50W modules with one violet LED crystal with correct spectre, which appears to be a good solution.
+
+#### vijexa, 2018
