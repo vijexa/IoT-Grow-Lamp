@@ -1,7 +1,8 @@
 # IOT Grow Lamp
 
 Automatical lamp for plants based on ESP8266 Wi-Fi MCU and NodeMCU firmware. Can be scheduled or work depending on sunset and sunrise times.
-***
+
+
 ## Settings
 
 Before uploading firmware you should rename src/settings.lua-TEMPLATE to settings.lua and edit it. 
