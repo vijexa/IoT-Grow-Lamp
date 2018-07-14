@@ -2,6 +2,62 @@
 
 Automatical lamp for plants based on ESP8266 Wi-Fi MCU and NodeMCU firmware. Can be scheduled or work depending on sunset and sunrise times.
 
+## Settings
+
+Before uploading firmware you should rename src/settings.lua-TEMPLATE to settings.lua and edit it. 
+
+#### (string) ssid
+
+Name of your Wi-Fi network.
+
+#### (string) pwd 
+
+Password of your Wi-Fi network.
+
+#### (int) lamp_pin 
+
+Pin to which your relay/mosfet/etc is connected. Note that NodeMCU pin numbers differs from ESP8266 GPIO. 
+
+#### (string) time_server
+
+SNTP UTC (equal to GMT+0) time server (at most scenarious you don't need to touch this, time.google.com is ok).
+
+#### (int) sleep_time 
+
+Interval between time syncing in minutes. Lower == more accurate, because ESP8266 RTC can't provide time accurate enough.
+
+#### (int) wait_connection_time 
+
+Interval between failed time syncing attempts in minutes due to internet connection loss/SNTP error/etc. Lost connection means time error growth, so it's better to get connection as fast as possible.
+
+#### (int) GMT 
+
+Your timezone.
+
+#### (boolean) daylight_saving
+
+Equate this to true if your country has daylight saving time.
+
+#### daylight_saving_period
+
+Write in when starts and ends daylight saving time in your country. Values in template are true for Latvia.
+
+#### toggle_time
+
+Time, when lamp should turn on and off. These values are ignored if use_sun_times == true (described lower).
+
+#### fade
+
+Lamp smoothly turns on and off during fade_time (described lower).
+
+#### fade_time
+
+Time, during which lamp smoothly turns on and off.
+
+Lamp will start to turn on at toggle_time.on or sunrise and will be fully turned on when fade_time will pass.
+
+-- TODO --
+
 ## Installing
 
 Firstly, you need to install nodejs packages (uploader scripts use [nodemcu-tool](https://github.com/AndiDittrich/NodeMCU-Tool)):
@@ -56,7 +112,7 @@ You can read more about ESP8266 boot process here:
 
 It's important each time when you reset MCU. After resetting, these pins can be used as regular GPIO. You need to think about this if you have pure ESP8266 module. If you have custom board with USB like NodeMCU development kit or WeMos board, then most likely GPIO15 and GPIO2 are correctly connected internally, and GPIO0 is triggered from USB when flashing. Also on these boards can be flash button, which connects GPIO0 to LOW when pressed (so, you should press it while resetting MCU before flashing).
 
-After firmware uploading you should launch upload_build.bat or upload_build.sh if you are using windows or linux respectively. 
+After firmware uploading you should launch upload_build.bat or upload_build.sh if you are using windows or linux respectively. I recommend to compile code during uploading.
 
 #### Windows uploader
 
@@ -83,4 +139,7 @@ For example:
 ```
 sudo ./upload_build.sh -p /dev/ttyUSB0 -f -c
 ```
+
+
+
 -- TODO --
