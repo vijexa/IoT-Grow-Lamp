@@ -1,48 +1,48 @@
 # IOT Grow Lamp
 
 Automatical lamp for plants based on ESP8266 Wi-Fi MCU and NodeMCU firmware. Can be scheduled or work depending on sunset and sunrise times.
-
+***
 ## Settings
 
 Before uploading firmware you should rename src/settings.lua-TEMPLATE to settings.lua and edit it. 
 
-#### (string) ssid
+#### &nbsp;&nbsp;(string) ssid
 
 Name of your Wi-Fi network.
 
-#### (string) pwd 
+#### &nbsp;&nbsp;(string) pwd 
 
 Password of your Wi-Fi network.
 
-#### (int) lamp_pin
+#### &nbsp;&nbsp;(int) lamp_pin
 
 Pin to which your relay/mosfet/etc is connected. Note that NodeMCU pin numbers differs from ESP8266 GPIO. More info [here](https://nodemcu.readthedocs.io/en/master/en/modules/gpio/).
 
-#### (string) time_server
+#### &nbsp;&nbsp;(string) time_server
 
 SNTP UTC (equal to GMT+0) time server (at most scenarious you don't need to touch this, time.google.com is ok).
 
-#### (int) sleep_time 
+#### &nbsp;&nbsp;(int) sleep_time 
 
 Interval between time syncing in minutes. Lower == more accurate, because ESP8266 RTC can't provide time accurate enough.
 
-#### (int) wait_connection_time 
+#### &nbsp;&nbsp;(int) wait_connection_time 
 
 Interval between failed time syncing attempts in minutes due to internet connection loss/SNTP error/etc. Lost connection means time error growth, so it's better to get connection as fast as possible.
 
-#### (int) GMT 
+#### &nbsp;&nbsp;(int) GMT 
 
 Your timezone.
 
-#### (boolean) daylight_saving
+#### &nbsp;&nbsp;(boolean) daylight_saving
 
 Assign this to true if your country has daylight saving time.
 
-#### daylight_saving_period
+#### &nbsp;&nbsp;daylight_saving_period
 
 Write in when starts and ends daylight saving time in your country. Values in template are true for Latvia.
 
-#### toggle_time
+#### &nbsp;&nbsp;toggle_time
 
 Time, when lamp should turn on and off. Currently, `toggle_time.off` should be higher than `toggle_time.on`. These values are ignored if `use_sun_times == true` (described lower).
 ```lua
@@ -50,11 +50,11 @@ Time, when lamp should turn on and off. Currently, `toggle_time.off` should be h
 0 <= min <= 59
 ```
 
-#### (boolean) fade
+#### &nbsp;&nbsp;(boolean) fade
 
 Lamp smoothly turns on and off during fade_time (described lower).
 
-#### (int) fade_time
+#### &nbsp;&nbsp;(int) fade_time
 
 Time, during which lamp smoothly turns on and off.
 
@@ -62,7 +62,7 @@ Lamp will start to turn on at `toggle_time.on` or sunrise and will be fully turn
 
 Lamp will start to turn off at `toggle_time.off` or `sunset - fade_time` and will be fully turned off when `fade_time` will pass.
 
-#### (int) fade_function
+#### &nbsp;&nbsp;(int) fade_function
 
 Human brightness perception is logarithmic due to the [Weber-Fechner law](https://en.wikipedia.org/wiki/Weber%E2%80%93Fechner_law). It means that changing brightness level from 2 to 3 (max value 1023) is a lot more visible than changing it from 1002 to 1003, so linear brightness changing is not the best solution.
 
@@ -77,11 +77,11 @@ Program supports three smooth brightness changing functions:
 Linear – blue, parabolic - red, exponential - yellow. Green lines - max value (1023).
 ![](https://image.ibb.co/imWJu8/BX2_R8_MZp_Cw.jpg)
 
-#### (boolean) use_sun_times
+#### &nbsp;&nbsp;(boolean) use_sun_times
 
 Assign to true if you want to replace toggle_time with sunset and sunrise time for your location.
 
-#### coordinates
+#### &nbsp;&nbsp;coordinates
 
 Coordinates for sunset and sunrise time acquiring. You can get it from google maps. If you click somewhere on map you will see coordinates of that point presented by two numbers. First number is latitude, second – longitude. 
 
