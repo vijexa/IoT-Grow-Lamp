@@ -1,19 +1,19 @@
 # IOT Grow Lamp
 
-Automatical lamp for plants based on ESP8266 Wi-Fi MCU and NodeMCU firmware. Can be scheduled or work depending on sunset and sunrise times.
+Automatical lamp for plants based on ESP8266 Wi-Fi MCU and NodeMCU firmware. Can be scheduled or work depending on sunset and sunrise time.
 
 
 ## Settings
 
-Before uploading firmware you should rename src/settings.lua-TEMPLATE to settings.lua and edit it. 
+You should rename src/settings.lua-TEMPLATE to settings.lua and edit it before uploading firmware. 
 
 #### &nbsp;&nbsp;(string) ssid
 
-Name of your Wi-Fi network.
+Your's Wi-Fi network name.
 
 #### &nbsp;&nbsp;(string) pwd 
 
-Password of your Wi-Fi network.
+Your's Wi-Fi network password.
 
 #### &nbsp;&nbsp;(int) lamp_pin
 
@@ -21,7 +21,7 @@ Pin to which your relay/mosfet/etc is connected. Note that NodeMCU pin numbers d
 
 #### &nbsp;&nbsp;(string) time_server
 
-SNTP UTC (equal to GMT+0) time server (at most scenarious you don't need to touch this, time.google.com is ok).
+SNTP UTC (equal to GMT+0) time server (you don't need to touch this in most cases, time.google.com is ok).
 
 #### &nbsp;&nbsp;(int) sleep_time 
 
@@ -37,7 +37,7 @@ Your timezone.
 
 #### &nbsp;&nbsp;(boolean) daylight_saving
 
-Assign this to true if your country has daylight saving time.
+Assign this to true if there is daylight saving time in your country.
 
 #### &nbsp;&nbsp;daylight_saving_period
 
@@ -53,7 +53,7 @@ Time, when lamp should turn on and off. Currently, `toggle_time.off` should be h
 
 #### &nbsp;&nbsp;(boolean) fade
 
-Lamp smoothly turns on and off during fade_time (described lower).
+Lamp smoothly turns on and off during `fade_time` (described lower).
 
 #### &nbsp;&nbsp;(int) fade_time
 
@@ -80,7 +80,7 @@ Linear – blue, parabolic - red, exponential - yellow. Green lines - max value 
 
 #### &nbsp;&nbsp;(boolean) use_sun_times
 
-Assign to true if you want to replace toggle_time with sunset and sunrise time for your location.
+Assign to true if you want to replace `toggle_time` with sunset and sunrise time for your location.
 
 #### &nbsp;&nbsp;coordinates
 
